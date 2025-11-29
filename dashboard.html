@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Digital Twin Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f9fc;
+            margin: 20px;
+        }
+
+        .search-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            width: 90%;
+        }
+
+        .metric-box {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+        }
+
+        .metric {
+            background: #e9f2ff;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .metric-value {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 8px;
+            color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #d4d4d4;
+        }
+
+        th {
+            background: #e6efff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+
+<body>
+
+<!-- 🔍 SEARCH SECTION -->
+<div class="search-container">
+    <div class="title">🔍 Search Member</div>
+
+    <form method="get" action="/dashboard">
+
+        <!-- Search Input -->
+        <input type="text" id="searchBox"
+               placeholder="Search Member ID..."
+               onkeyup="filterMembers()"
+               style="padding:10px; width:250px; margin-bottom:15px; border-radius:6px; border:1px solid #bbb;">
+
+        <br>
+
+        <!-- Member Dropdown -->
+        <label><b>Member ID:</b></label>
+        <select id="memberDropdown" name="memberId" style="padding:8px; width:250px;">
+            <option value="">-- Select Member --</option>
+
+            <option th:each="m : ${members}"
+                    th:value="${m}"
+                    th:text="${m}"
+                    th:selected="${selectedMember == m}">
+            </option>
+        </select>
+
+        <!-- Submit Button -->
+        <button type="submit"
+                style="padding:10px 18px; margin-left:10px; background:#0056b3; color:white; border:none; border-radius:6px;">
+            Load
+        </button>
+
+    </form>
+</div>
+
+
+
+<!-- ⭐ METRICS SECTION -->
+<div class="card">
+    <div class="title">Metrics</div>
+
+    <div class="metric-box">
+        <div class="metric">Meal Log %<div class="metric-value" th:text="${metrics.meal_log}"></div></div>
+        <div class="metric">GFY %<div class="metric-value" th:text="${metrics.gfy}"></div></div>
+        <div class="metric">Steps<div class="metric-value" th:text="${metrics.steps}"></div></div>
+        <div class="metric">Sleep<div class="metric-value" th:text="${metrics.sleep}"></div></div>
+        <div class="metric">Protein<div class="metric-value" th:text="${metrics.protein}"></div></div>
+        <div class="metric">Fiber<div class="metric-value" th:text="${metrics.fiber}"></div></div>
+    </div>
+</div>
+
+
+
+<!-- ⭐ CLINICAL DATA SECTION -->
+<div class="card">
+    <div class="title">Clinical Data</div>
+
+    <table>
+        <tr>
+            <th>Parameter</th>
+            <th>Start</th>
+            <th>Latest</th>
+        </tr>
+
+        <tr>
+            <td>HbA1c</td>
+            <td th:text="${metrics.start_hba1c}"></td>
+            <td th:text="${metrics.latest_ea1c}"></td>
+        </tr>
+
+        <tr>
+            <td>Weight (lbs)</td>
+            <td th:text="${metrics.start_weight}"></td>
+            <td th:text="${metrics.latest_weight}"></td>
+        </tr>
+
+        <tr>
+            <td>BMI</td>
+            <td th:text="${metrics.start_bmi}"></td>
+            <td th:text="${metrics.latest_bmi}"></td>
+        </tr>
+
+        <tr>
+            <td>Visceral Fat</td>
+            <td th:text="${metrics.start_vfat}"></td>
+            <td th:text="${metrics.latest_vfat}"></td>
+        </tr>
+
+        <tr>
+            <td>Blood Pressure</td>
+            <td th:text="${metrics.start_bp}"></td>
+            <td th:text="${metrics.latest_bp}"></td>
+        </tr>
+    </table>
+</div>
+
+
+
+<!-- ⭐ SUMMARY SECTION -->
+<div class="card">
+    <div class="title">Digital Twin Summary</div>
+
+    <div class="summary-box" th:utext="${summary}"
+         style="background:#eef5ff; padding:20px; border-radius:10px; white-space:pre-wrap;"></div>
+</div>
+
+
+
+<!-- SCRIPT FOR MEMBER SEARCH -->
+<script>
+    function filterMembers() {
+        let input = document.getElementById("searchBox").value.toLowerCase();
+        let options = document.getElementById("memberDropdown").options;
+
+        for (let i = 0; i < options.length; i++) {
+            let txt = options[i].text.toLowerCase();
+            options[i].style.display = txt.includes(input) ? "" : "none";
+        }
+    }
+</script>
+
+
+</body>
+</html>
