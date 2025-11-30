@@ -2,14 +2,13 @@ from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-
 import pandas as pd
 import gspread
+import os
 from google.oauth2.service_account import Credentials
 
 app = FastAPI()
 
-# Enable CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,36 +18,30 @@ app.add_middleware(
 
 templates = Jinja2Templates(directory="templates")
 
-# Google Sheet configuration
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1Kjo-jfEYdPc_KFoCa4kL_UtBrochTiBLFFYiPQ88lio/edit"
-WORKSHEET_NAME = "KP Chat _ No CGM Chat data"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1Kjo-jfEYdPc_KFoCa4kL_UtBrochTiBLFFYiPQ88lio/edit?usp=sharing"
+WORKSHEET_NAME = "Copy of No CGM >2D - Vig, Vin"
+
 def fetch_sheet():
     try:
-        print("STEP 1: Loading credentials.json...")
-        creds = Credentials.from_service_account_file("credentials.json", scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"])
+        cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+        creds = Credentials.from_service_account_file(cred_path)
 
-        print("STEP 2: Authorizing client...")
         gc = gspread.authorize(creds)
-
-        print("STEP 3: Opening Google Sheet URL...")
         sh = gc.open_by_url(SHEET_URL)
-
-        print("STEP 4: Opening worksheet...")
         ws = sh.worksheet(WORKSHEET_NAME)
 
-        print("STEP 5: Reading data...")
         data = ws.get_all_values()
 
         df = pd.DataFrame(data)
-        df.columns = df.iloc[0]  # Header
+        df.columns = df.iloc[0]
         df = df[1:]
 
-        print("SUCCESS: Sheet loaded.")
         return df
 
     except Exception as e:
         print("🔥 GOOGLE SHEET ERROR:", e)
         return None
+
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
@@ -65,7 +58,5 @@ def get_coaches():
     if "Coach" not in df.columns:
         return {"error": "Column 'Coach' not found"}
 
-    coaches = sorted(list(df["Coach"].dropna().unique()))
+    coaches = sorted(df["Coach"].dropna().unique().tolist())
     return {"coaches": coaches}
-
-
