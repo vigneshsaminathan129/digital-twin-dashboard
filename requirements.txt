@@ -9,5 +9,3 @@ oauth2client
 google-api-python-client
 jinja2
 python-dotenv
-python-3.11
-python-3.10.13
