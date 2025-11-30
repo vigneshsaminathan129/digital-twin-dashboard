@@ -20,10 +20,8 @@ app.add_middleware(
 templates = Jinja2Templates(directory="templates")
 
 # Google Sheet configuration
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1Kjo-jfEYdPc_KFoCa4kL_UtBrochTiBLFFYiPQ88lio/edit?usp=sharing"
-WORKSHEET_NAME = "Copy of No CGM >2D - Vig, Vin"
-
-
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1Kjo-jfEYdPc_KFoCa4kL_UtBrochTiBLFFYiPQ88lio/edit"
+WORKSHEET_NAME = "KP Chat _ No CGM Chat data"
 def fetch_sheet():
     try:
         print("STEP 1: Loading credentials.json...")
@@ -69,4 +67,5 @@ def get_coaches():
 
     coaches = sorted(list(df["Coach"].dropna().unique()))
     return {"coaches": coaches}
+
 
